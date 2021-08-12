@@ -30,7 +30,7 @@ let mixerCam;
 const loader = new GLTFLoader();
 loader.load(
   //   "/models/Duck/gltf/Duck.gltf",
-  "/models/Rocket/rocket_scene.glb",
+  "./models/Rocket/rocket_scene.glb",
   (gltf) => {
     console.log(gltf);
     scene.add(gltf.scene);
@@ -81,19 +81,45 @@ loader.load(
 /**
  * Lights
  */
-const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-scene.add(ambientLight);
+// const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+// scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.set(1024, 1024);
-directionalLight.shadow.camera.far = 15;
-directionalLight.shadow.camera.left = -7;
-directionalLight.shadow.camera.top = 7;
-directionalLight.shadow.camera.right = 7;
-directionalLight.shadow.camera.bottom = -7;
-directionalLight.position.set(5, 5, 5);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+// directionalLight.castShadow = true;
+// directionalLight.shadow.mapSize.set(1024, 1024);
+// directionalLight.shadow.camera.far = 15;
+// directionalLight.shadow.camera.left = -7;
+// directionalLight.shadow.camera.top = 7;
+// directionalLight.shadow.camera.right = 7;
+// directionalLight.shadow.camera.bottom = -7;
+directionalLight.position.set(0.25, 3, -2.25);
 scene.add(directionalLight);
+
+gui
+  .add(directionalLight, "intensity")
+  .min(0.1)
+  .max(10)
+  .step(0.1)
+  .name("lightIntensity");
+
+gui
+  .add(directionalLight.position, "x")
+  .min(-5)
+  .max(5)
+  .step(0.1)
+  .name("LightPosX");
+gui
+  .add(directionalLight.position, "y")
+  .min(-5)
+  .max(5)
+  .step(0.1)
+  .name("LightPosY");
+gui
+  .add(directionalLight.position, "z")
+  .min(-5)
+  .max(5)
+  .step(0.1)
+  .name("LightPosZ");
 
 /**
  * Sizes
@@ -148,6 +174,8 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+renderer.physicallyCorrectLights = true;
 
 /**
  * Animate
