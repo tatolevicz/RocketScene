@@ -92,36 +92,6 @@ directionalLight.position.set(0.25, 3, -2.25);
 scene.add(directionalLight);
 
 /**
- * GUI Tweakes
- */
-
-gui
-  .add(directionalLight, "intensity")
-  .min(0.1)
-  .max(10)
-  .step(0.1)
-  .name("lightIntensity");
-
-gui
-  .add(directionalLight.position, "x")
-  .min(-5)
-  .max(5)
-  .step(0.1)
-  .name("LightPosX");
-gui
-  .add(directionalLight.position, "y")
-  .min(-5)
-  .max(5)
-  .step(0.1)
-  .name("LightPosY");
-gui
-  .add(directionalLight.position, "z")
-  .min(-5)
-  .max(5)
-  .step(0.1)
-  .name("LightPosZ");
-
-/**
  * Enviroment maps
  */
 const debugObject = {};
@@ -136,7 +106,10 @@ const enviromentMap = cubeTextLoader.load([
   "./environmentMaps/" + mapId + "/nz.jpg",
 ]);
 
+enviromentMap.encoding = THREE.sRGBEncoding;
+
 scene.background = enviromentMap;
+scene.environment = enviromentMap;
 
 function updateAllMaterials() {
   scene.traverse((child) => {
@@ -144,19 +117,14 @@ function updateAllMaterials() {
       child instanceof THREE.Mesh &&
       child.material instanceof THREE.MeshStandardMaterial
     ) {
-      child.material.envMap = enviromentMap;
       child.material.envMapIntensity = debugObject.envMapInensity;
+      child.material.needsUpdate = true;
     }
   });
 }
 
 debugObject.envMapInensity = 5;
 
-gui
-  .add(debugObject, "envMapInensity")
-  .min(0)
-  .max(10)
-  .onChange(updateAllMaterials);
 /**
  * Sizes
  */
@@ -212,6 +180,67 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 2;
+
+/**
+ * GUI Tweakes
+ */
+
+gui
+  .add(directionalLight, "intensity")
+  .min(0.1)
+  .max(10)
+  .step(0.1)
+  .name("lightIntensity");
+
+gui
+  .add(ambientLight, "intensity")
+  .min(0.1)
+  .max(10)
+  .step(0.1)
+  .name("Ambient Intensity");
+
+gui
+  .add(directionalLight.position, "x")
+  .min(-5)
+  .max(5)
+  .step(0.1)
+  .name("LightPosX");
+gui
+  .add(directionalLight.position, "y")
+  .min(-5)
+  .max(5)
+  .step(0.1)
+  .name("LightPosY");
+gui
+  .add(directionalLight.position, "z")
+  .min(-5)
+  .max(5)
+  .step(0.1)
+  .name("LightPosZ");
+
+gui
+  .add(debugObject, "envMapInensity")
+  .min(0)
+  .max(10)
+  .onChange(updateAllMaterials);
+
+gui
+  .add(renderer, "toneMapping", {
+    NO: THREE.NoToneMapping,
+    Cineon: THREE.CineonToneMapping,
+    Linear: THREE.LinearToneMapping,
+    Reinhard: THREE.ReinhardToneMapping,
+    ACESFilmic: THREE.ACESFilmicToneMapping,
+  })
+  .onFinishChange(() => {
+    renderer.toneMapping = Number(renderer.toneMapping);
+    updateAllMaterials();
+  });
+
+gui.add(renderer, "toneMappingExposure").min(0).max(10).step(0.01);
 
 /**
  * Animate
@@ -231,9 +260,9 @@ const tick = () => {
   renderer.render(scene, camera);
 
   //Animations
-  // if (mixer) mixer.update(deltaTime);
+  if (mixer) mixer.update(deltaTime);
 
-  // if (mixerCam) mixerCam.update(deltaTime);
+  if (mixerCam) mixerCam.update(deltaTime);
 
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
