@@ -1,4 +1,4 @@
-bundler
+# bundler
 dist
 node_modules
 .DS*
