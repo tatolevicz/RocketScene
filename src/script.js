@@ -39,12 +39,17 @@ const particleTexture = textureLoader.load("./particles/8.png");
 function addParticles(emitter) {
   //Geometry
   const particlesGeometry = new THREE.BufferGeometry();
-  const count = 500;
+  const count = 2000;
 
   const positions = new Float32Array(count * 3);
+  // const colors = new Float32Array(count * 3);
 
   for (let i = 0; i < count * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 2;
+    positions[i] = (Math.random() - 0.5) * 1.5;
+    if ((i + 2) % 3 == 0) {
+      positions[i] *= 4;
+    }
+    // colors[i] = Math.random();
   }
 
   particlesGeometry.setAttribute(
@@ -52,13 +57,21 @@ function addParticles(emitter) {
     new THREE.BufferAttribute(positions, 3)
   );
 
+  // particlesGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
   //Material
-  const particlesMaterial = new THREE.PointsMaterial({ color: "red" });
+  const particlesMaterial = new THREE.PointsMaterial({ color: "orange" });
   particlesMaterial.transparent = true;
   particlesMaterial.alphaMap = particleTexture;
   particlesMaterial.size = 0.05;
+  // particlesMaterial.vertexColors = true;
+
   // particlesMaterial.alphaTest = 0.001;
   // particlesMaterial.depthTest = false;
+
+  //this one can drops performance faster
+  // particlesMaterial.blending = THREE.AdditiveBlending;
+
   particlesMaterial.depthWrite = false;
   particlesMaterial.sizeAttenuation = true;
 
@@ -67,7 +80,11 @@ function addParticles(emitter) {
   emitter.add(particles);
 }
 
-function updateParticles() {}
+function updateParticles(currentTime) {
+  if (particles) {
+    particles.rotation.y = currentTime * 40;
+  }
+}
 
 /**
  * GLTFLoader
@@ -305,6 +322,7 @@ const tick = () => {
 
   // Update controls
   controls.update();
+  updateParticles(elapsedTime);
 
   // Render
   renderer.render(scene, camera);
