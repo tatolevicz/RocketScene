@@ -24,10 +24,31 @@ let mixer;
 let mixerCam;
 
 /**
+ * Particles
+ */
+
+function addParticles(emitter) {
+  //Geometry
+  const particlesGeometry = new THREE.SphereGeometry(1, 32, 32);
+
+  //Material
+  const particlesMaterial = new THREE.PointsMaterial();
+  particlesMaterial.size = 0.005;
+  particlesMaterial.sizeAttenuation = true;
+
+  //Points
+  const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+  particles.position.set(0, 0, 0);
+  emitter.add(particles);
+}
+
+/**
  * GLTFLoader
  */
 
 const loader = new GLTFLoader();
+let rocketEmmiter = undefined;
+
 loader.load("./models/Rocket/rocket_scene_2.glb", (gltf) => {
   console.log(gltf);
   scene.add(gltf.scene);
@@ -35,11 +56,18 @@ loader.load("./models/Rocket/rocket_scene_2.glb", (gltf) => {
   let children = [...gltf.scene.children];
   for (const child of children) {
     scene.add(child);
+
+    console.log(child);
+
     if (child.name == "Rocket") {
       console.log("Animation setup!");
       mixer = new THREE.AnimationMixer(child);
       const action = mixer.clipAction(gltf.animations[0]);
       action.play();
+
+      //Adding particles to smoke emitter mesh
+      rocketEmmiter = child.children[1];
+      addParticles(rocketEmmiter);
     }
 
     if (child.name == "Empty") {
