@@ -53,9 +53,13 @@ function addParticles(emitter) {
   );
 
   //Material
-  const particlesMaterial = new THREE.PointsMaterial();
-  particlesMaterial.map = particleTexture;
-  particlesMaterial.size = 0.005;
+  const particlesMaterial = new THREE.PointsMaterial({ color: "red" });
+  particlesMaterial.transparent = true;
+  particlesMaterial.alphaMap = particleTexture;
+  particlesMaterial.size = 0.05;
+  // particlesMaterial.alphaTest = 0.001;
+  // particlesMaterial.depthTest = false;
+  particlesMaterial.depthWrite = false;
   particlesMaterial.sizeAttenuation = true;
 
   //Points
