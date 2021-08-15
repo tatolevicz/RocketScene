@@ -115,8 +115,8 @@ const enviromentMap = cubeTextLoader.load([
 ]);
 
 enviromentMap.encoding = THREE.sRGBEncoding;
-const backColor = new THREE.Color(0.2, 0.1, 0.4);
-scene.background = backColor;
+// const backColor = new THREE.Color(0.05, 0.05, 0.05);
+// scene.background = backColor;
 scene.environment = enviromentMap;
 
 function updateAllMaterials() {
