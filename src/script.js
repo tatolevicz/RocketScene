@@ -28,7 +28,7 @@ let mixerCam;
  */
 
 const loader = new GLTFLoader();
-loader.load("./models/Rocket/rocket_scene.glb", (gltf) => {
+loader.load("./models/Rocket/rocket_scene_2.glb", (gltf) => {
   console.log(gltf);
   scene.add(gltf.scene);
 
@@ -92,10 +92,10 @@ directionalLight.shadow.camera.right = 13;
 directionalLight.shadow.camera.top = 13;
 directionalLight.shadow.camera.bottom = -13;
 
-const directionalLightCamera = new THREE.CameraHelper(
-  directionalLight.shadow.camera
-);
-scene.add(directionalLightCamera);
+// const directionalLightCamera = new THREE.CameraHelper(
+//   directionalLight.shadow.camera
+// );
+// scene.add(directionalLightCamera);
 
 scene.add(directionalLight);
 
@@ -115,8 +115,8 @@ const enviromentMap = cubeTextLoader.load([
 ]);
 
 enviromentMap.encoding = THREE.sRGBEncoding;
-
-scene.background = enviromentMap;
+const backColor = new THREE.Color(0.2, 0.1, 0.4);
+scene.background = backColor;
 scene.environment = enviromentMap;
 
 function updateAllMaterials() {
