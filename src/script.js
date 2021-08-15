@@ -35,7 +35,6 @@ loader.load("./models/Rocket/rocket_scene.glb", (gltf) => {
   let children = [...gltf.scene.children];
   for (const child of children) {
     scene.add(child);
-    // console.log(child.name);
     if (child.name == "Rocket") {
       console.log("Animation setup!");
       mixer = new THREE.AnimationMixer(child);
@@ -81,14 +80,23 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 2);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
-// directionalLight.castShadow = true;
-// directionalLight.shadow.mapSize.set(1024, 1024);
-// directionalLight.shadow.camera.far = 15;
-// directionalLight.shadow.camera.left = -7;
-// directionalLight.shadow.camera.top = 7;
-// directionalLight.shadow.camera.right = 7;
-// directionalLight.shadow.camera.bottom = -7;
-directionalLight.position.set(0.25, 3, -2.25);
+
+directionalLight.castShadow = true;
+directionalLight.position.set(0.25, 20, -10);
+// directionalLight.shadow.normalBias = 0.;
+//directionalLight.shadow.bias = 0.005;
+
+directionalLight.shadow.camera.far = 40;
+directionalLight.shadow.camera.left = -13;
+directionalLight.shadow.camera.right = 13;
+directionalLight.shadow.camera.top = 13;
+directionalLight.shadow.camera.bottom = -13;
+
+const directionalLightCamera = new THREE.CameraHelper(
+  directionalLight.shadow.camera
+);
+scene.add(directionalLightCamera);
+
 scene.add(directionalLight);
 
 /**
@@ -119,11 +127,13 @@ function updateAllMaterials() {
     ) {
       child.material.envMapIntensity = debugObject.envMapInensity;
       child.material.needsUpdate = true;
+      child.receiveShadow = true;
+      child.castShadow = true;
     }
   });
 }
 
-debugObject.envMapInensity = 5;
+debugObject.envMapInensity = 2.4;
 
 /**
  * Sizes
@@ -182,7 +192,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.physicallyCorrectLights = true;
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 2;
+renderer.toneMappingExposure = 0.96;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 /**
  * GUI Tweakes
@@ -204,19 +215,19 @@ gui
 
 gui
   .add(directionalLight.position, "x")
-  .min(-5)
-  .max(5)
+  .min(-50)
+  .max(50)
   .step(0.1)
   .name("LightPosX");
 gui
   .add(directionalLight.position, "y")
-  .min(-5)
-  .max(5)
+  .min(-50)
+  .max(50)
   .step(0.1)
   .name("LightPosY");
 gui
   .add(directionalLight.position, "z")
-  .min(-5)
+  .min(-50)
   .max(5)
   .step(0.1)
   .name("LightPosZ");
