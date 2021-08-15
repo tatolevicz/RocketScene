@@ -59,21 +59,6 @@ loader.load("./models/Rocket/rocket_scene_2.glb", (gltf) => {
 let cubeTextLoader = new THREE.CubeTextureLoader();
 
 /**
- * Floor
- */
-// const floor = new THREE.Mesh(
-//   new THREE.PlaneGeometry(10, 10),
-//   new THREE.MeshStandardMaterial({
-//     color: "#444444",
-//     metalness: 0,
-//     roughness: 0.5,
-//   })
-// );
-// floor.receiveShadow = true;
-// floor.rotation.x = -Math.PI * 0.5;
-// scene.add(floor);
-
-/**
  * Lights
  */
 const ambientLight = new THREE.AmbientLight(0xffffff, 2);
@@ -83,8 +68,6 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
 
 directionalLight.castShadow = true;
 directionalLight.position.set(0.25, 20, -10);
-// directionalLight.shadow.normalBias = 0.;
-//directionalLight.shadow.bias = 0.005;
 
 directionalLight.shadow.camera.far = 40;
 directionalLight.shadow.camera.left = -13;
@@ -183,6 +166,7 @@ controls.enableDamping = true;
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
+  antialias: true,
 });
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
