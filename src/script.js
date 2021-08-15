@@ -9,6 +9,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
  */
 // Debug
 const gui = new dat.GUI();
+gui.closed = true;
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -330,7 +331,7 @@ const tick = () => {
   //Animations
   if (mixer) mixer.update(deltaTime);
 
-  if (mixerCam) mixerCam.update(deltaTime);
+  // if (mixerCam) mixerCam.update(deltaTime);
 
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
