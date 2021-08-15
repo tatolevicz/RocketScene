@@ -28,40 +28,36 @@ let mixerCam;
  */
 
 const loader = new GLTFLoader();
-loader.load(
-  //   "/models/Duck/gltf/Duck.gltf",
-  "./models/Rocket/rocket_scene.glb",
-  (gltf) => {
-    console.log(gltf);
-    scene.add(gltf.scene);
+loader.load("./models/Rocket/rocket_scene.glb", (gltf) => {
+  console.log(gltf);
+  scene.add(gltf.scene);
 
-    let children = [...gltf.scene.children];
-    for (const child of children) {
-      scene.add(child);
-      console.log(child.name);
-      if (child.name == "Rocket") {
-        console.log("Animation setup!");
-        mixer = new THREE.AnimationMixer(child);
-        const action = mixer.clipAction(gltf.animations[0]);
-        action.play();
-      }
+  let children = [...gltf.scene.children];
+  for (const child of children) {
+    scene.add(child);
+    // console.log(child.name);
+    if (child.name == "Rocket") {
+      console.log("Animation setup!");
+      mixer = new THREE.AnimationMixer(child);
+      const action = mixer.clipAction(gltf.animations[0]);
+      action.play();
+    }
 
-      if (child.name == "Empty") {
-        child.add(camera);
-        console.log("Animation setup Cam!");
-        mixerCam = new THREE.AnimationMixer(child);
-        const action = mixerCam.clipAction(gltf.animations[1]);
-        action.play();
-      }
+    if (child.name == "Empty") {
+      child.add(camera);
+      console.log("Animation setup Cam!");
+      mixerCam = new THREE.AnimationMixer(child);
+      const action = mixerCam.clipAction(gltf.animations[1]);
+      action.play();
     }
   }
-  //   () => {
-  //     console.log("progress");
-  //   },
-  //   () => {
-  //     console.log("error");
-  //   }
-);
+  updateAllMaterials();
+});
+
+/**
+ * Cube Text loader
+ */
+let cubeTextLoader = new THREE.CubeTextureLoader();
 
 /**
  * Floor
@@ -81,10 +77,10 @@ loader.load(
 /**
  * Lights
  */
-// const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-// scene.add(ambientLight);
+const ambientLight = new THREE.AmbientLight(0xffffff, 2);
+scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
 // directionalLight.castShadow = true;
 // directionalLight.shadow.mapSize.set(1024, 1024);
 // directionalLight.shadow.camera.far = 15;
@@ -94,6 +90,10 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 // directionalLight.shadow.camera.bottom = -7;
 directionalLight.position.set(0.25, 3, -2.25);
 scene.add(directionalLight);
+
+/**
+ * GUI Tweakes
+ */
 
 gui
   .add(directionalLight, "intensity")
@@ -121,6 +121,42 @@ gui
   .step(0.1)
   .name("LightPosZ");
 
+/**
+ * Enviroment maps
+ */
+const debugObject = {};
+
+const mapId = 0;
+const enviromentMap = cubeTextLoader.load([
+  "./environmentMaps/" + mapId + "/px.jpg",
+  "./environmentMaps/" + mapId + "/nx.jpg",
+  "./environmentMaps/" + mapId + "/py.jpg",
+  "./environmentMaps/" + mapId + "/ny.jpg",
+  "./environmentMaps/" + mapId + "/pz.jpg",
+  "./environmentMaps/" + mapId + "/nz.jpg",
+]);
+
+scene.background = enviromentMap;
+
+function updateAllMaterials() {
+  scene.traverse((child) => {
+    if (
+      child instanceof THREE.Mesh &&
+      child.material instanceof THREE.MeshStandardMaterial
+    ) {
+      child.material.envMap = enviromentMap;
+      child.material.envMapIntensity = debugObject.envMapInensity;
+    }
+  });
+}
+
+debugObject.envMapInensity = 5;
+
+gui
+  .add(debugObject, "envMapInensity")
+  .min(0)
+  .max(10)
+  .onChange(updateAllMaterials);
 /**
  * Sizes
  */
@@ -195,9 +231,9 @@ const tick = () => {
   renderer.render(scene, camera);
 
   //Animations
-  if (mixer) mixer.update(deltaTime);
+  // if (mixer) mixer.update(deltaTime);
 
-  if (mixerCam) mixerCam.update(deltaTime);
+  // if (mixerCam) mixerCam.update(deltaTime);
 
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
