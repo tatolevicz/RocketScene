@@ -66,6 +66,11 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.(glsl|vs|vert|frag)$/,
+        exclude: /node_modules/,
+        use: ["raw-loader"],
+      },
     ],
   },
 };

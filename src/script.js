@@ -3,6 +3,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import particleVertexShader from "./shaders/vertex.glsl";
+import particleFragmentShader from "./shaders/fragment.glsl";
 
 /**
  * Base
@@ -40,7 +42,7 @@ const particleTexture = textureLoader.load("./particles/8.png");
 function addParticles(emitter) {
   //Geometry
   const particlesGeometry = new THREE.BufferGeometry();
-  const count = 2000;
+  const count = 20000;
 
   const positions = new Float32Array(count * 3);
   // const colors = new Float32Array(count * 3);
@@ -61,10 +63,17 @@ function addParticles(emitter) {
   // particlesGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
   //Material
-  const particlesMaterial = new THREE.PointsMaterial({ color: "orange" });
-  particlesMaterial.transparent = true;
-  particlesMaterial.alphaMap = particleTexture;
-  particlesMaterial.size = 0.05;
+  // const particlesMaterial = new THREE.PointsMaterial({ color: "orange" });
+  // particlesMaterial.transparent = true;
+  // particlesMaterial.alphaMap = particleTexture;
+  // particlesMaterial.size = 0.05;
+
+  //Shader material
+  const particlesMaterial = new THREE.RawShaderMaterial({
+    vertexShader: particleVertexShader,
+    fragmentShader: particleFragmentShader,
+  });
+
   // particlesMaterial.vertexColors = true;
 
   // particlesMaterial.alphaTest = 0.001;
@@ -73,8 +82,8 @@ function addParticles(emitter) {
   //this one can drops performance faster
   // particlesMaterial.blending = THREE.AdditiveBlending;
 
-  particlesMaterial.depthWrite = false;
-  particlesMaterial.sizeAttenuation = true;
+  // particlesMaterial.depthWrite = false;
+  // particlesMaterial.sizeAttenuation = true;
 
   //Points
   particles = new THREE.Points(particlesGeometry, particlesMaterial);
