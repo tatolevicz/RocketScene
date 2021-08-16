@@ -42,18 +42,15 @@ const particleTexture = textureLoader.load("./particles/8.png");
 function addParticles(emitter) {
   //Geometry
   const particlesGeometry = new THREE.BufferGeometry();
-  const count = 20000;
+  const count = 1200;
 
-  const positions = new Float32Array(count * 3);
-  // const colors = new Float32Array(count * 3);
+  const positions = new Float32Array(count);
 
   for (let i = 0; i < count * 3; i++) {
     positions[i] = (Math.random() - 0.5) * 1.5;
-    if ((i + 2) % 3 == 0) {
-      positions[i] *= 4;
-    }
-    // colors[i] = Math.random();
   }
+
+  console.log(particlesGeometry);
 
   particlesGeometry.setAttribute(
     "position",
@@ -72,7 +69,19 @@ function addParticles(emitter) {
   const particlesMaterial = new THREE.RawShaderMaterial({
     vertexShader: particleVertexShader,
     fragmentShader: particleFragmentShader,
+    uniforms: {
+      uYSpam: { value: 2 },
+      uTime: { value: 0 },
+      uSize: { value: 0.5 },
+      uStartColor: { value: new THREE.Color("orange") },
+      uEndColor: { value: new THREE.Color("grey") },
+      uTexture: { value: particleTexture },
+    },
   });
+
+  // particlesMaterial.setAttribute({
+
+  // });
 
   // particlesMaterial.vertexColors = true;
 
@@ -87,12 +96,15 @@ function addParticles(emitter) {
 
   //Points
   particles = new THREE.Points(particlesGeometry, particlesMaterial);
+
+  // const particles = new THREE.Mesh(particlesGeometry, particlesMaterial);
   emitter.add(particles);
 }
 
 function updateParticles(currentTime) {
   if (particles) {
-    particles.rotation.y = currentTime * 40;
+    particles.material.uniforms.uTime.value = currentTime;
+    // particles.material.needsUpdate =
   }
 }
 
@@ -104,17 +116,17 @@ const loader = new GLTFLoader();
 let rocketEmmiter = undefined;
 
 loader.load("./models/Rocket/rocket_scene_2.glb", (gltf) => {
-  console.log(gltf);
+  // console.log(gltf);
   scene.add(gltf.scene);
 
   let children = [...gltf.scene.children];
   for (const child of children) {
     scene.add(child);
 
-    console.log(child);
+    // console.log(child);
 
     if (child.name == "Rocket") {
-      console.log("Animation setup!");
+      // console.log("Animation setup!");
       mixer = new THREE.AnimationMixer(child);
       const action = mixer.clipAction(gltf.animations[0]);
       action.play();
