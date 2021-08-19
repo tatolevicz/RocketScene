@@ -23,6 +23,10 @@ const scene = new THREE.Scene();
  * Animation
  */
 
+const clock = new THREE.Clock();
+let previousTime = 0;
+var deltaTime = 0;
+
 let mixer;
 let mixerCam;
 
@@ -35,35 +39,40 @@ const textureLoader = new THREE.TextureLoader();
 /**
  * Particles
  */
+const count = 500;
+let geometryParticlesArr = [];
+let particlesArr = [];
+const translateArray = new Float32Array(count * 3);
+const lifeTimeArray = new Float32Array(count);
 
-let particles = undefined;
-const particleTexture = textureLoader.load("./particles/8.png");
+let geometry;
 
 function addParticles(emitter) {
   //Geometry
-  const particlesGeometry = new THREE.BufferGeometry();
-  const count = 1200;
-
-  const positions = new Float32Array(count);
-
-  for (let i = 0; i < count * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 1.5;
-  }
-
-  console.log(particlesGeometry);
-
-  particlesGeometry.setAttribute(
-    "position",
-    new THREE.BufferAttribute(positions, 3)
+  const sphereGeometry = new THREE.SphereBufferGeometry(
+    0.04,
+    5,
+    4,
+    0,
+    Math.PI * 2,
+    0,
+    Math.PI
   );
 
-  // particlesGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  geometry = new THREE.InstancedBufferGeometry();
+  geometry.index = sphereGeometry.index;
+  geometry.attributes = sphereGeometry.attributes;
 
-  //Material
-  // const particlesMaterial = new THREE.PointsMaterial({ color: "orange" });
-  // particlesMaterial.transparent = true;
-  // particlesMaterial.alphaMap = particleTexture;
-  // particlesMaterial.size = 0.05;
+  for (let i = 0; i < count; i++) {
+    lifeTimeArray[i] = 0;
+  }
+
+  geometry.setAttribute(
+    "lifeTime",
+    new THREE.InstancedBufferAttribute(lifeTimeArray, 1)
+  );
+
+  updatePositionParticles();
 
   //Shader material
   const particlesMaterial = new THREE.RawShaderMaterial({
@@ -73,39 +82,58 @@ function addParticles(emitter) {
       uYSpam: { value: 2 },
       uTime: { value: 0 },
       uSize: { value: 0.5 },
-      uStartColor: { value: new THREE.Color("orange") },
-      uEndColor: { value: new THREE.Color("grey") },
-      uTexture: { value: particleTexture },
+      uStartColor: { value: new THREE.Color("#FFBD3F") },
+      uEndColor: { value: new THREE.Color("white") },
     },
   });
 
-  // particlesMaterial.setAttribute({
+  particlesMaterial.transparent = true;
 
-  // });
-
-  // particlesMaterial.vertexColors = true;
-
-  // particlesMaterial.alphaTest = 0.001;
-  // particlesMaterial.depthTest = false;
-
-  //this one can drops performance faster
-  // particlesMaterial.blending = THREE.AdditiveBlending;
-
-  // particlesMaterial.depthWrite = false;
-  // particlesMaterial.sizeAttenuation = true;
-
-  //Points
-  particles = new THREE.Points(particlesGeometry, particlesMaterial);
-
-  // const particles = new THREE.Mesh(particlesGeometry, particlesMaterial);
-  emitter.add(particles);
+  const particle = new THREE.Mesh(geometry, particlesMaterial);
+  emitter.add(particle);
 }
 
-function updateParticles(currentTime) {
-  if (particles) {
-    particles.material.uniforms.uTime.value = currentTime;
-    // particles.material.needsUpdate =
+let emissionRate = 50; // particles per frame
+let emissonCount = 0;
+function respawnParticles() {
+  for (let i = 0; i < count; i++) {
+    lifeTimeArray[i] += deltaTime * i * 0.1;
+    if (lifeTimeArray[i] > 10.0) {
+      lifeTimeArray[i] = 0.0;
+    }
+    emissonCount++;
   }
+
+  geometry.setAttribute(
+    "lifeTime",
+    new THREE.InstancedBufferAttribute(lifeTimeArray, 1)
+  );
+}
+
+function updatePositionParticles() {
+  for (let i = 0; i < count * 3; i += 3) {
+    translateArray[i + 0] = (Math.random() - 0.5) * 1.5;
+    translateArray[i + 1] = (Math.random() - 0.5) * 1.5;
+    translateArray[i + 2] = (Math.random() - 0.5) * 1.5;
+  }
+
+  geometry.setAttribute(
+    "translate",
+    new THREE.InstancedBufferAttribute(translateArray, 3)
+  );
+}
+
+function updateParticles() {
+  if (geometry) {
+    // updatePositionParticles();
+    respawnParticles();
+  }
+  // if (particlesArr.length <= 0) return;
+  // // for (let i = 0; i < emissionRate; i++) {
+  // const particle = particlesArr[0];
+  // particle.material.uniforms.uTime.value += deltaTime;
+  // emissonCount++;
+  // }
 }
 
 /**
@@ -334,17 +362,15 @@ gui.add(renderer, "toneMappingExposure").min(0).max(10).step(0.01);
 /**
  * Animate
  */
-const clock = new THREE.Clock();
-let previousTime = 0;
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  const deltaTime = elapsedTime - previousTime;
+  deltaTime = elapsedTime - previousTime;
   previousTime = elapsedTime;
 
   // Update controls
   controls.update();
-  updateParticles(elapsedTime);
+  updateParticles();
 
   // Render
   renderer.render(scene, camera);

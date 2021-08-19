@@ -5,9 +5,12 @@ uniform vec3 uEndColor;
 uniform sampler2D uTexture;
 
 varying float vTime;
-varying vec2 vUv;
-
+varying float vLifeTime;
 void main(){
-    vec4 textureColor = texture2D(uTexture,vUv);
-    gl_FragColor = vec4(textureColor.xy, vTime*0.01, 1.0);
+
+    vec4 orange = vec4(uStartColor, 1.0);
+    vec4 white = vec4(uEndColor, 1.0);
+    vec4 mixC = mix(orange, white, vLifeTime*0.2);
+    gl_FragColor = mixC;
+
 }   
